@@ -1,85 +1,85 @@
-# JHR Hotel Performance KPI Database (2015-2025)
+# JHRホテル業績KPIデータベース（2015-2025年）
 
-A comprehensive 11-year database of Japan Hotel REIT Investment Corporation (JHR) hotel performance KPIs extracted from official Excel files.
+ジャパン・ホテル・リート投資法人（JHR）のホテル業績に関するKPIを、公式Excelファイルから抽出した11年間分の包括的データベースです。
 
-## 📊 Dataset Overview
+## 📊 データセット概要
 
-- **Coverage Period**: 2015-2025 (11 years)
-- **Data Source**: Official JHR IR library Excel files
-- **Total Records**: 126 months of actual performance data
-- **Success Rate**: 100% (11/11 years extracted)
+- **対象期間**：2015年～2025年（11年間）
+- **データソース**：JHR公式IRライブラリのExcelファイル
+- **総記録数**：126ヶ月分の実績データ
+- **抽出成功率**：100%（11年間すべてのデータを抽出完了）
 
-## 🎯 Key Performance Indicators
+## 🎯 主要業績指標
 
-- **Occupancy Rate (%)**: Monthly room occupancy percentages
-- **ADR (JPY)**: Average Daily Rate in Japanese Yen
-- **RevPAR (JPY)**: Revenue Per Available Room in Japanese Yen
-- **Sales (Million JPY)**: Total monthly sales revenue
+- **稼働率（％）**：客室の月間稼働率
+- **ADR（日本円）**：平均客室単価
+- **RevPAR（日本円）**：利用可能客室1室あたりの収益
+- **売上高（百万円）**：月間総売上高
 
-## 📁 Project Structure
+## 📁 プロジェクト構成
 
 ```
 jhr/
-├── README.md                              # This file
-├── data/                                  # Excel source files (11 years)
+├── README.md                              # 本ファイル
+├── data/                                  # Excelソースファイル（11年分）
 │   ├── jhr_2015_hotel_performance.xlsx
 │   ├── jhr_2016_hotel_performance.xlsx
-│   └── ... (through 2025)
-├── src/                                   # Processing scripts
-│   ├── get.py                            # Automated Excel download
-│   ├── fixed_yaml_generator.py           # Corrected extraction logic
-│   ├── create_comprehensive_yaml.py      # Alternative extraction method
-│   └── detailed_excel_inspector.py       # Excel structure analysis
-├── jhr_11year_fixed_kpi.yaml            # Primary output (corrected)
-└── jhr_11year_comprehensive_kpi.yaml    # Alternative output
+│   └── ...（2025年分まで）
+├── src/                                   # 処理スクリプト
+│   ├── get.py                            # Excelファイル自動ダウンロード
+│   ├── fixed_yaml_generator.py           # 修正済み抽出ロジック
+│   ├── create_comprehensive_yaml.py      # 代替抽出方法
+│   └── detailed_excel_inspector.py       # Excelファイル構造解析
+├── jhr_11year_fixed_kpi.yaml            # 主要出力ファイル（修正版）
+└── jhr_11year_comprehensive_kpi.yaml    # 代替出力ファイル
 ```
 
-## 🚀 Usage
+## 🚀 使用方法
 
-### Quick Start
+### クイックスタート
 
-1. **Generate YAML Database**:
+1. **YAMLデータベースの生成**：
    ```bash
    python3 src/fixed_yaml_generator.py
    ```
 
-2. **Download Latest Excel Files**:
+2. **最新Excelファイルのダウンロード**：
    ```bash
    python3 src/get.py --download-all
    ```
 
-### Data Files
+### データファイル
 
-- **Primary**: `jhr_11year_fixed_kpi.yaml` - Recommended dataset with corrected extraction logic
-- **Alternative**: `jhr_11year_comprehensive_kpi.yaml` - Alternative extraction approach
+- **主要データ**：`jhr_11year_fixed_kpi.yaml` - 修正済み抽出ロジックを採用した推奨データセット
+- **代替データ**：`jhr_11year_comprehensive_kpi.yaml` - 別の抽出手法によるデータセット
 
-## 📈 Data Quality & Coverage
+## 📈 データ品質とカバー範囲
 
-### Successful Extractions
-- ✅ **2015-2018**: Legacy HMJ format (individual hotels)
-- ✅ **2019**: Variable rent 21-hotel format (individual → aggregated)
-- ✅ **2020-2023**: COVID-period HMJ format (individual → aggregated)  
-- ✅ **2024-2025**: Modern 28-hotel aggregated format
+### 正常に抽出された期間
+- ✅ **2015-2018年**：旧HMJ形式（個別ホテル別データ）
+- ✅ **2019年**：変動賃料21ホテル形式（個別→集計データ）
+- ✅ **2020-2023年**：コロナ禍におけるHMJ形式（個別→集計データ）  
+- ✅ **2024-2025年**：最新の28ホテル集計形式
 
-### Special Periods
-- **2020-2022**: COVID-19 impact period (low occupancy rates documented)
-- **2019**: Rugby World Cup impact
-- **2023+**: Inbound tourism recovery period
+### 特別期間
+- **2020-2022年**：新型コロナウイルス感染症の影響期間（低稼働率が記録されている）
+- **2019年**：ラグビーワールドカップ開催の影響期間
+- **2023年以降**：インバウンド観光回復期
 
-## 🛠️ Technical Features
+## 🛠️ 技術的特徴
 
-### Multi-Format Excel Processing
-- Handles 4 different Excel sheet structures across 11 years
-- Automatic sheet detection and format adaptation
-- Robust data validation and conversion
+### 複数形式Excelファイルの処理
+- 11年間にわたる4種類の異なるExcelシート構造に対応
+- シート自動検出とフォーマット適応機能
+- 堅牢なデータ検証と変換処理
 
-### Data Extraction Capabilities
-- Decimal to percentage conversion (0.816 → 81.6%)
-- Multi-hotel aggregation for individual hotel data
-- KPI continuation pattern handling (2019 format)
-- COVID-period data normalization
+### データ抽出機能
+- 小数点値から百分率への変換処理（例：0.816→81.6%）
+- 個別ホテルデータの複数ホテル集計処理
+- 2019年形式におけるKPI継続パターンの処理
+- コロナ禍データの正規化処理
 
-## 📊 Sample Data
+## 📊 サンプルデータ
 
 ```yaml
 '2024':
@@ -95,33 +95,33 @@ jhr/
     sales_total_annual_mil_jpy: 672
 ```
 
-## 🔄 Updates
+## 🔄 更新方法
 
-The dataset can be updated by running:
+以下のコマンドを実行することでデータセットを更新できます：
 ```bash
 python3 src/get.py --download-all --update-yaml
 ```
 
-This will:
-1. Download latest Excel files from JHR IR library
-2. Process new data using established extraction patterns
-3. Regenerate YAML database with updated information
+この処理では以下の手順が実行されます：
+1. JHR公式IRライブラリから最新Excelファイルをダウンロード
+2. 確立された抽出パターンを用いて新規データを処理
+3. 更新された情報を含むYAMLデータベースを再生成
 
-## 📋 Data Sources
+## 📋 データソース
 
-- **Primary Source**: [JHR Official Portfolio Review](https://www.jhrth.co.jp/ja/portfolio/review.html)
-- **IR Library**: [JHR IR Document Library](https://www.jhrth.co.jp/ja/ir/library.html)
-- **Data Format**: Official monthly performance Excel files
+- **主要ソース**：[JHR公式ポートフォリオレビュー](https://www.jhrth.co.jp/ja/portfolio/review.html)
+- **IRライブラリ**：[JHR IR文書ライブラリ](https://www.jhrth.co.jp/ja/ir/library.html)
+- **データ形式**：公式月次業績Excelファイル
 
-## ⚠️ Notes
+## ⚠️ 注意事項
 
-- All values represent **actual performance data**, not estimates
-- 2025 data is partial (January-June available as of extraction date)
-- Currency values are in Japanese Yen (JPY)
-- Sales figures are in millions of JPY
+- すべての値は**実績データ**であり、推計値ではありません
+- 2025年データは一部のみ利用可能です（抽出時点時点で1月～6月分まで）
+- 通貨値は日本円（JPY）で表示されています
+- 売上高は百万円単位で記載されています
 
 ---
 
-**Generated**: 2025-09-07  
-**Data Range**: 2015-2025 (11 years)  
-**Total Coverage**: 126 months of hotel performance data
+**生成日**：2025年9月7日  
+**データ範囲**：2015-2025年（11年間）  
+**総カバー期間**：126ヶ月分のホテル業績データ
