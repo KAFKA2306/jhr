@@ -1,0 +1,1239 @@
+jhr_comprehensive_kpi:
+  schema_version: '3.0'
+  description: JHR 11年間実績KPIデータベース（2015-2025）
+  source:
+    primary_url: https://www.jhrth.co.jp/ja/portfolio/review.html
+    ir_library_url: https://www.jhrth.co.jp/ja/ir/library.html
+    last_updated: '2025-09-07'
+  coverage_period:
+    start_year: 2015
+    end_year: 2025
+    total_years: 11
+  data_definitions:
+    metrics:
+      occupancy_pct: 客室稼働率（%）
+      adr_jpy: ADR - Average Daily Rate（円）
+      revpar_jpy: RevPAR - Revenue Per Available Room（円）
+      sales_total_mil_jpy: 売上高合計（百万円）
+      sales_lodging_mil_jpy: 宿泊部門売上高（百万円）
+      sales_fnb_mil_jpy: 料飲部門売上高（百万円）
+      sales_other_mil_jpy: その他売上高（百万円）
+    geographical_regions:
+    - 北海道
+    - 東京
+    - 関東（東京除く）
+    - 大阪
+    - 関西（大阪除く）
+    - 中国
+    - 九州
+    - 沖縄
+  datasets:
+    '2015':
+      portfolio_type: ホテル運営実績
+      data_availability: 実績値（Excelファイルより抽出）
+      excel_source: data/jhr_2015_hotel_performance.xlsx
+      sheet_used: HMJ
+      extraction_date: '2025-09-07'
+      monthly_data:
+        '01':
+          occupancy_pct: 83.3
+          adr_jpy: 14648
+          revpar_jpy: 12203
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '02':
+          occupancy_pct: 89.3
+          adr_jpy: 13872
+          revpar_jpy: 12388
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '03':
+          occupancy_pct: 89.9
+          adr_jpy: 18294
+          revpar_jpy: 16439
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '04':
+          occupancy_pct: 88.9
+          adr_jpy: 16182
+          revpar_jpy: 14383
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '05':
+          occupancy_pct: 87.8
+          adr_jpy: 18527
+          revpar_jpy: 16265
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '06':
+          occupancy_pct: 84.8
+          adr_jpy: 15440
+          revpar_jpy: 13101
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '07':
+          occupancy_pct: 90.4
+          adr_jpy: 22506
+          revpar_jpy: 20341
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        08:
+          occupancy_pct: 94.7
+          adr_jpy: 44178
+          revpar_jpy: 41818
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        09:
+          occupancy_pct: 94.3
+          adr_jpy: 21711
+          revpar_jpy: 20464
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '10':
+          occupancy_pct: 95.5
+          adr_jpy: 14700
+          revpar_jpy: 14035
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '11':
+          occupancy_pct: 85.8
+          adr_jpy: 12540
+          revpar_jpy: 10753
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '12':
+          occupancy_pct: 69.2
+          adr_jpy: 17454
+          revpar_jpy: 12080
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+      annual_summary:
+        occupancy_avg_pct: 87.8
+        adr_avg_jpy: 19171
+        revpar_avg_jpy: 17022
+        sales_total_annual_mil_jpy: null
+    '2016':
+      portfolio_type: ホテル運営実績
+      data_availability: 実績値（Excelファイルより抽出）
+      excel_source: data/jhr_2016_hotel_performance.xlsx
+      sheet_used: HMJ
+      extraction_date: '2025-09-07'
+      monthly_data:
+        '01':
+          occupancy_pct: 67.9
+          adr_jpy: 15593
+          revpar_jpy: 10580
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '02':
+          occupancy_pct: 86.5
+          adr_jpy: 14649
+          revpar_jpy: 12664
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '03':
+          occupancy_pct: 87.0
+          adr_jpy: 16797
+          revpar_jpy: 14621
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '04':
+          occupancy_pct: 88.0
+          adr_jpy: 10009
+          revpar_jpy: 8811
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '05':
+          occupancy_pct: 85.9
+          adr_jpy: 9834
+          revpar_jpy: 8447
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '06':
+          occupancy_pct: 89.9
+          adr_jpy: 9567
+          revpar_jpy: 8597
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '07':
+          occupancy_pct: 91.8
+          adr_jpy: 10109
+          revpar_jpy: 9278
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        08:
+          occupancy_pct: 97.2
+          adr_jpy: 20154
+          revpar_jpy: 19597
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        09:
+          occupancy_pct: 96.2
+          adr_jpy: 17863
+          revpar_jpy: 17184
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '10':
+          occupancy_pct: 98.0
+          adr_jpy: 19639
+          revpar_jpy: 19238
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '11':
+          occupancy_pct: 92.2
+          adr_jpy: 18889
+          revpar_jpy: 17407
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '12':
+          occupancy_pct: 94.7
+          adr_jpy: 19739
+          revpar_jpy: 18692
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+      annual_summary:
+        occupancy_avg_pct: 89.6
+        adr_avg_jpy: 15237
+        revpar_avg_jpy: 13760
+        sales_total_annual_mil_jpy: null
+    '2017':
+      portfolio_type: ホテル運営実績
+      data_availability: 実績値（Excelファイルより抽出）
+      excel_source: data/jhr_2017_hotel_performance.xlsx
+      sheet_used: HMJ
+      extraction_date: '2025-09-07'
+      monthly_data:
+        '01':
+          occupancy_pct: 0.926
+          adr_jpy: 17856
+          revpar_jpy: 16537
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '02':
+          occupancy_pct: 0.974
+          adr_jpy: 17052
+          revpar_jpy: 16613
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '03':
+          occupancy_pct: 0.969
+          adr_jpy: 17729
+          revpar_jpy: 17179
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '04':
+          occupancy_pct: 0.979
+          adr_jpy: 21153
+          revpar_jpy: 20706
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '05':
+          occupancy_pct: 0.956
+          adr_jpy: 18142
+          revpar_jpy: 17340
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '06':
+          occupancy_pct: 0.968
+          adr_jpy: 16740
+          revpar_jpy: 16205
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '07':
+          occupancy_pct: 0.97
+          adr_jpy: 18825
+          revpar_jpy: 18262
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        08:
+          occupancy_pct: 0.823
+          adr_jpy: 12995
+          revpar_jpy: 10696
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        09:
+          occupancy_pct: 0.754
+          adr_jpy: 10819
+          revpar_jpy: 8153
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '10':
+          occupancy_pct: 0.806
+          adr_jpy: 14260
+          revpar_jpy: 11499
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '11':
+          occupancy_pct: 0.919
+          adr_jpy: 16087
+          revpar_jpy: 14787
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '12':
+          occupancy_pct: 0.671
+          adr_jpy: 11857
+          revpar_jpy: 7951
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+      annual_summary:
+        occupancy_avg_pct: 0.9
+        adr_avg_jpy: 16126
+        revpar_avg_jpy: 14661
+        sales_total_annual_mil_jpy: null
+    '2018':
+      portfolio_type: ホテル運営実績
+      data_availability: 実績値（Excelファイルより抽出）
+      excel_source: data/jhr_2018_hotel_performance.xlsx
+      sheet_used: HMJ
+      extraction_date: '2025-09-07'
+      monthly_data:
+        '01':
+          occupancy_pct: 0.747
+          adr_jpy: 14945
+          revpar_jpy: 11166
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '02':
+          occupancy_pct: 0.802
+          adr_jpy: 15133
+          revpar_jpy: 12137
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '03':
+          occupancy_pct: 0.856
+          adr_jpy: 16475
+          revpar_jpy: 14104
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '04':
+          occupancy_pct: 0.858
+          adr_jpy: 17051
+          revpar_jpy: 14633
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '05':
+          occupancy_pct: 0.866
+          adr_jpy: 17762
+          revpar_jpy: 15379
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '06':
+          occupancy_pct: 0.833
+          adr_jpy: 16655
+          revpar_jpy: 13881
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '07':
+          occupancy_pct: 0.854
+          adr_jpy: 15577
+          revpar_jpy: 13298
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        08:
+          occupancy_pct: 0.934
+          adr_jpy: 20542
+          revpar_jpy: 19177
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        09:
+          occupancy_pct: 0.791
+          adr_jpy: 16421
+          revpar_jpy: 12982
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '10':
+          occupancy_pct: 0.868
+          adr_jpy: 17075
+          revpar_jpy: 14825
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '11':
+          occupancy_pct: 0.909
+          adr_jpy: 17826
+          revpar_jpy: 16207
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '12':
+          occupancy_pct: 0.859
+          adr_jpy: 19480
+          revpar_jpy: 16728
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+      annual_summary:
+        occupancy_avg_pct: 0.8
+        adr_avg_jpy: 17078
+        revpar_avg_jpy: 14543
+        sales_total_annual_mil_jpy: null
+    '2019':
+      portfolio_type: ホテル運営実績
+      data_availability: 実績値（Excelファイルより抽出）
+      excel_source: data/jhr_2019_hotel_performance.xlsx
+      sheet_used: 変動賃料等導入21ホテル
+      extraction_date: '2025-09-07'
+      monthly_data:
+        '01':
+          occupancy_pct: null
+          adr_jpy: null
+          revpar_jpy: null
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '02':
+          occupancy_pct: null
+          adr_jpy: null
+          revpar_jpy: null
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '03':
+          occupancy_pct: null
+          adr_jpy: null
+          revpar_jpy: null
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '04':
+          occupancy_pct: null
+          adr_jpy: null
+          revpar_jpy: null
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '05':
+          occupancy_pct: null
+          adr_jpy: null
+          revpar_jpy: null
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '06':
+          occupancy_pct: null
+          adr_jpy: null
+          revpar_jpy: null
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '07':
+          occupancy_pct: null
+          adr_jpy: null
+          revpar_jpy: null
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        08:
+          occupancy_pct: null
+          adr_jpy: null
+          revpar_jpy: null
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        09:
+          occupancy_pct: null
+          adr_jpy: null
+          revpar_jpy: null
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '10':
+          occupancy_pct: null
+          adr_jpy: null
+          revpar_jpy: null
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '11':
+          occupancy_pct: null
+          adr_jpy: null
+          revpar_jpy: null
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '12':
+          occupancy_pct: null
+          adr_jpy: null
+          revpar_jpy: null
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+      annual_summary:
+        occupancy_avg_pct: null
+        adr_avg_jpy: null
+        revpar_avg_jpy: null
+        sales_total_annual_mil_jpy: null
+      special_notes:
+      - ラグビーワールドカップ開催
+    '2020':
+      portfolio_type: ホテル運営実績
+      data_availability: 実績値（Excelファイルより抽出）
+      excel_source: data/jhr_2020_hotel_performance.xlsx
+      sheet_used: HMJグループホテル
+      extraction_date: '2025-09-07'
+      monthly_data:
+        '01':
+          occupancy_pct: 0.837
+          adr_jpy: 26692
+          revpar_jpy: 22336
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '02':
+          occupancy_pct: 0.576
+          adr_jpy: 24022
+          revpar_jpy: 13848
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '03':
+          occupancy_pct: 0.2
+          adr_jpy: 26491
+          revpar_jpy: 5301
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '04':
+          occupancy_pct: 0.018
+          adr_jpy: 27152
+          revpar_jpy: 3119
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '05':
+          occupancy_pct: 0.287
+          adr_jpy: 14349
+          revpar_jpy: 4118
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '06':
+          occupancy_pct: 0.091
+          adr_jpy: 27085
+          revpar_jpy: 2455
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '07':
+          occupancy_pct: 0.159
+          adr_jpy: 27541
+          revpar_jpy: 4366
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        08:
+          occupancy_pct: 0.405
+          adr_jpy: 27537
+          revpar_jpy: 11157
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        09:
+          occupancy_pct: 0.28
+          adr_jpy: 26812
+          revpar_jpy: 7517
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '10':
+          occupancy_pct: 0.387
+          adr_jpy: 28372
+          revpar_jpy: 10971
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '11':
+          occupancy_pct: 0.507
+          adr_jpy: 30704
+          revpar_jpy: 15578
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '12':
+          occupancy_pct: 0.455
+          adr_jpy: 29456
+          revpar_jpy: 13391
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+      annual_summary:
+        occupancy_avg_pct: 0.4
+        adr_avg_jpy: 26351
+        revpar_avg_jpy: 9513
+        sales_total_annual_mil_jpy: null
+      special_notes:
+      - COVID-19パンデミック影響期
+    '2021':
+      portfolio_type: ホテル運営実績
+      data_availability: 実績値（Excelファイルより抽出）
+      excel_source: data/jhr_2021_hotel_performance.xlsx
+      sheet_used: HMJグループホテル
+      extraction_date: '2025-09-07'
+      monthly_data:
+        '01':
+          occupancy_pct: 0.245
+          adr_jpy: 23487
+          revpar_jpy: 5755
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '02':
+          occupancy_pct: 0.244
+          adr_jpy: 21406
+          revpar_jpy: 5221
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '03':
+          occupancy_pct: 0.293
+          adr_jpy: 22589
+          revpar_jpy: 6624
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '04':
+          occupancy_pct: 0.284
+          adr_jpy: 21551
+          revpar_jpy: 6121
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '05':
+          occupancy_pct: 0.284
+          adr_jpy: 22783
+          revpar_jpy: 6472
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '06':
+          occupancy_pct: 0.344
+          adr_jpy: 19007
+          revpar_jpy: 6545
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '07':
+          occupancy_pct: 0.673
+          adr_jpy: 51742
+          revpar_jpy: 34830
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        08:
+          occupancy_pct: 0.671
+          adr_jpy: 37299
+          revpar_jpy: 25012
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        09:
+          occupancy_pct: 0.421
+          adr_jpy: 22125
+          revpar_jpy: 9322
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '10':
+          occupancy_pct: 0.431
+          adr_jpy: 21526
+          revpar_jpy: 9277
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '11':
+          occupancy_pct: 0.43
+          adr_jpy: 21575
+          revpar_jpy: 9284
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '12':
+          occupancy_pct: 0.629
+          adr_jpy: 26221
+          revpar_jpy: 16491
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+      annual_summary:
+        occupancy_avg_pct: 0.4
+        adr_avg_jpy: 25943
+        revpar_avg_jpy: 11746
+        sales_total_annual_mil_jpy: null
+      special_notes:
+      - COVID-19パンデミック影響期
+    '2022':
+      portfolio_type: ホテル運営実績
+      data_availability: 実績値（Excelファイルより抽出）
+      excel_source: data/jhr_2022_hotel_performance.xlsx
+      sheet_used: HMJ16ホテル
+      extraction_date: '2025-09-07'
+      monthly_data:
+        '01':
+          occupancy_pct: 0.441
+          adr_jpy: 23463
+          revpar_jpy: 10354
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '02':
+          occupancy_pct: 0.328
+          adr_jpy: 20372
+          revpar_jpy: 6674
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '03':
+          occupancy_pct: 0.427
+          adr_jpy: 21856
+          revpar_jpy: 9341
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '04':
+          occupancy_pct: 0.463
+          adr_jpy: 21711
+          revpar_jpy: 10049
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '05':
+          occupancy_pct: 0.563
+          adr_jpy: 22114
+          revpar_jpy: 12455
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '06':
+          occupancy_pct: 0.56
+          adr_jpy: 19901
+          revpar_jpy: 11144
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '07':
+          occupancy_pct: 0.608
+          adr_jpy: 23013
+          revpar_jpy: 13993
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        08:
+          occupancy_pct: 0.663
+          adr_jpy: 24597
+          revpar_jpy: 16309
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        09:
+          occupancy_pct: 0.676
+          adr_jpy: 21997
+          revpar_jpy: 14861
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '10':
+          occupancy_pct: 0.707
+          adr_jpy: 25250
+          revpar_jpy: 17864
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '11':
+          occupancy_pct: 0.827
+          adr_jpy: 31117
+          revpar_jpy: 25745
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '12':
+          occupancy_pct: 0.814
+          adr_jpy: 36073
+          revpar_jpy: 29369
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+      annual_summary:
+        occupancy_avg_pct: 0.6
+        adr_avg_jpy: 24289
+        revpar_avg_jpy: 14846
+        sales_total_annual_mil_jpy: null
+      special_notes:
+      - COVID-19パンデミック影響期
+    '2023':
+      portfolio_type: ホテル運営実績
+      data_availability: 実績値（Excelファイルより抽出）
+      excel_source: data/jhr_2023_hotel_performance.xlsx
+      sheet_used: HMJ19ホテル
+      extraction_date: '2025-09-07'
+      monthly_data:
+        '01':
+          occupancy_pct: 0.587
+          adr_jpy: 28578
+          revpar_jpy: 16783
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '02':
+          occupancy_pct: 0.537
+          adr_jpy: 29617
+          revpar_jpy: 15901
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '03':
+          occupancy_pct: 0.834
+          adr_jpy: 33363
+          revpar_jpy: 27813
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '04':
+          occupancy_pct: 0.797
+          adr_jpy: 30536
+          revpar_jpy: 24325
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '05':
+          occupancy_pct: 0.85
+          adr_jpy: 30716
+          revpar_jpy: 26121
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '06':
+          occupancy_pct: 0.858
+          adr_jpy: 29271
+          revpar_jpy: 25109
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '07':
+          occupancy_pct: 0.839
+          adr_jpy: 30408
+          revpar_jpy: 25504
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        08:
+          occupancy_pct: 0.885
+          adr_jpy: 34233
+          revpar_jpy: 30301
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        09:
+          occupancy_pct: 0.872
+          adr_jpy: 30251
+          revpar_jpy: 26393
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '10':
+          occupancy_pct: 0.808
+          adr_jpy: 10199
+          revpar_jpy: 8239
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '11':
+          occupancy_pct: 0.883
+          adr_jpy: 10557
+          revpar_jpy: 9322
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '12':
+          occupancy_pct: 0.855
+          adr_jpy: 11983
+          revpar_jpy: 10247
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+      annual_summary:
+        occupancy_avg_pct: 0.8
+        adr_avg_jpy: 25809
+        revpar_avg_jpy: 20505
+        sales_total_annual_mil_jpy: null
+      special_notes:
+      - インバウンド需要回復期
+    '2024':
+      portfolio_type: ホテル運営実績
+      data_availability: 実績値（Excelファイルより抽出）
+      excel_source: data/jhr_2024_hotel_performance.xlsx
+      sheet_used: 変動賃料等導入28ホテル
+      extraction_date: '2025-09-07'
+      monthly_data:
+        '01':
+          occupancy_pct: 0.872
+          adr_jpy: 9168
+          revpar_jpy: 7990
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '02':
+          occupancy_pct: 0.894
+          adr_jpy: 11027
+          revpar_jpy: 9854
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '03':
+          occupancy_pct: 0.938
+          adr_jpy: 10543
+          revpar_jpy: 9884
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '04':
+          occupancy_pct: 0.873
+          adr_jpy: 10711
+          revpar_jpy: 9348
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '05':
+          occupancy_pct: 0.885
+          adr_jpy: 11122
+          revpar_jpy: 9847
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '06':
+          occupancy_pct: 0.824
+          adr_jpy: 10484
+          revpar_jpy: 8639
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '07':
+          occupancy_pct: 0.867
+          adr_jpy: 11635
+          revpar_jpy: 10082
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        08:
+          occupancy_pct: 0.811
+          adr_jpy: 11791
+          revpar_jpy: 9567
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        09:
+          occupancy_pct: 0.866
+          adr_jpy: 11744
+          revpar_jpy: 10174
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '10':
+          occupancy_pct: 0.884
+          adr_jpy: 12531
+          revpar_jpy: 11071
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '11':
+          occupancy_pct: 0.929
+          adr_jpy: 13477
+          revpar_jpy: 12517
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '12':
+          occupancy_pct: 0.901
+          adr_jpy: 13338
+          revpar_jpy: 12013
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+      annual_summary:
+        occupancy_avg_pct: 0.9
+        adr_avg_jpy: 11464
+        revpar_avg_jpy: 10082
+        sales_total_annual_mil_jpy: null
+      special_notes:
+      - インバウンド需要回復期
+    '2025':
+      portfolio_type: ホテル運営実績
+      data_availability: 実績値（Excelファイルより抽出）
+      excel_source: data/jhr_2025_hotel_performance.xlsx
+      sheet_used: (1)-1 ホテル運用実績(変動賃料等導入28ホテル)
+      extraction_date: '2025-09-07'
+      monthly_data:
+        '01':
+          occupancy_pct: 0.751
+          adr_jpy: 11855
+          revpar_jpy: 8899
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '02':
+          occupancy_pct: 0.872
+          adr_jpy: 14131
+          revpar_jpy: 12317
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '03':
+          occupancy_pct: 0.84
+          adr_jpy: 13328
+          revpar_jpy: 11198
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '04':
+          occupancy_pct: 0.875
+          adr_jpy: 12978
+          revpar_jpy: 11359
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '05':
+          occupancy_pct: 0.848
+          adr_jpy: 14125
+          revpar_jpy: 11979
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '06':
+          occupancy_pct: 0.797
+          adr_jpy: 12645
+          revpar_jpy: 10073
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '07':
+          occupancy_pct: null
+          adr_jpy: null
+          revpar_jpy: null
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        08:
+          occupancy_pct: null
+          adr_jpy: null
+          revpar_jpy: null
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        09:
+          occupancy_pct: null
+          adr_jpy: null
+          revpar_jpy: null
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '10':
+          occupancy_pct: null
+          adr_jpy: null
+          revpar_jpy: null
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '11':
+          occupancy_pct: null
+          adr_jpy: null
+          revpar_jpy: null
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+        '12':
+          occupancy_pct: null
+          adr_jpy: null
+          revpar_jpy: null
+          sales_total_mil_jpy: null
+          sales_lodging_mil_jpy: null
+          sales_fnb_mil_jpy: null
+          sales_other_mil_jpy: null
+      annual_summary:
+        occupancy_avg_pct: 0.8
+        adr_avg_jpy: 13177
+        revpar_avg_jpy: 10971
+        sales_total_annual_mil_jpy: null
+      special_notes:
+      - インバウンド需要回復期
+  metadata:
+    created_date: '2025-09-07'
+    created_by: JHR KPIデータ取得自動化システム
+    purpose: JHR 11年間実績KPI分析用データベース
+    data_completeness: 11年分の実績値取得済み
+    total_expected_records: 132
+    successful_extractions: 114
