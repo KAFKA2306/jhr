@@ -1,119 +1,128 @@
-# JHRホテル業績KPIデータベース
+# JHRホテル業績KPI抽出
 
-**リポジトリ:** https://github.com/KAFKA2306/jhr
+JHR公式Excelから稼働率、ADR、RevPAR、売上高を抽出し、出典・対象範囲・集計意味を保存する研究プロジェクトです。
 
-ジャパン・ホテル・リート投資法人（JHR）が公開するホテル運営実績のExcel資料から、稼働率、ADR、RevPAR、売上高などを抽出し、年度をまたいで比較できるYAMLへ変換するプロジェクトです。
+## 現在の重要な状態
 
-公式Excelの形式は年度によって変わるため、列位置だけで機械的に抽出せず、対象シート、ホテル範囲、集計範囲、単位、期間を保存します。
+**2015〜2023年のホテル別行から作った稼働率・ADR・RevPARは、客室数や販売室数で重み付けしていない単純平均です。公式ポートフォリオKPIとして扱わず、`quarantined_equal_weight_hotel_summary`へ隔離します。**
 
-## 対象KPI
+2024年以後に公式資料上の集計行を一意に特定できた場合だけ、`source_aggregate_observation`として保存します。それでも対象ホテル群・定義・訂正版の確認は必要です。
 
-- 稼働率（Occupancy）
-- ADR（平均客室単価）
-- RevPAR（販売可能客室1室当たり売上）
-- ホテル売上高
-- 年度・月次集計
+## 監査で確認・修正した問題
 
-KPIの定義と対象ホテル群が年度によって同一とは限りません。
+- ホテル別稼働率・ADR・RevPARを単純平均しながら「28ホテル集計」「ポートフォリオ実績」と表示
+- 0%稼働や売上0を欠損扱い
+- 月次ADR・稼働率を単純平均した値を公式年間KPIのように表示
+- 同じKPIに複数候補行があっても後勝ちで上書き
+- 抽出失敗年度を黙って除外
+- 1か月以上取れれば「完全抽出済み」と表示
+- 部分年度も「完全データ」と表示
+- URL周辺500文字から年度を推測してExcelファイルを自動対応付け
+- ダウンロードファイルの形式・容量・ハッシュを未検証
+- 件数を固定して「126か月」「100%成功」と表示
 
-## 主なデータ源
+現在は次の挙動へ変更しています。
 
-- JHR公式ポートフォリオレビュー  
+- 0を有効な観測値として保存
+- 公式集計行はKPIごとに一意でなければ停止
+- ホテル別行の単純平均と売上合計を別の集計意味として記録
+- `portfolio_weighted: false`と比較不能理由を保存
+- KPIごとの有効月数を保存
+- 年平均は`arithmetic_mean_of_available_months`と明記
+- RevPARと`ADR × 稼働率`の不整合を品質フラグ化
+- 元ExcelのSHA-256、シート、抽出時刻を保存
+- 指定年度のファイル欠落・抽出失敗はエラーで停止
+- HTML周辺文によるURL・年度推測を廃止
+- JHR公式ドメイン上の明示URLだけを取得
+- XLSX/XLSシグネチャ、最大容量、任意の期待ハッシュを検証
+
+## 公式資料
+
+- ポートフォリオレビュー  
   https://www.jhrth.co.jp/ja/portfolio/review.html
-- JHR公式IRライブラリ  
+- IRライブラリ  
   https://www.jhrth.co.jp/ja/ir/library.html
 
-ダウンロードしたExcelには、取得URL、公開日、取得日、ファイルハッシュを付けることを推奨します。
+## Excel取得
 
-## 主な構成
-
-```text
-jhr/
-├── data/                              # 取得した公式Excel
-├── src/get.py                         # Excel取得処理
-├── src/fixed_yaml_generator.py        # 主な抽出処理
-├── src/create_comprehensive_yaml.py   # 代替抽出処理
-├── src/detailed_excel_inspector.py    # Excel構造の調査
-├── jhr_11year_fixed_kpi.yaml          # 主な出力
-└── jhr_11year_comprehensive_kpi.yaml  # 代替出力
-```
-
-ファイル名に`11year`が含まれていますが、最新の対象年度・月数は生成YAMLのメタデータを正としてください。
-
-## 実行
-
-### 保存済みExcelからYAMLを生成
+年度とURLを利用者が公式ページで確認して明示します。
 
 ```bash
-python src/fixed_yaml_generator.py
+python src/get.py \
+  --year 2024 \
+  --url "https://www.jhrth.co.jp/file/example.xlsx" \
+  --expected-sha256 "確認済みハッシュ"
 ```
 
-### 公式資料を取得
+自動的な年度推測や全ファイル一括推測取得はありません。取得記録は`data/source_manifest.json`へ保存します。
+
+## 抽出
 
 ```bash
-python src/get.py --download-all
+python src/fixed_yaml_generator.py \
+  --data-dir data \
+  --start-year 2015 \
+  --end-year 2025 \
+  --output jhr_audited_kpi.yaml
 ```
 
-取得とYAML更新をまとめて行う構成では:
-
-```bash
-python src/get.py --download-all --update-yaml
-```
-
-実行前に現在の公式ページ構造、アクセス頻度、保存先を確認してください。
-
-## 形式変更への対応
-
-過去資料には、個別ホテル表示、対象ホテル群の変更、集計表示など複数の形式があります。
-
-抽出時に記録する項目:
+出力例:
 
 ```yaml
-source:
-  url: "https://..."
-  published_at: YYYY-MM-DD
-  retrieved_at: YYYY-MM-DD
-  file_sha256: "..."
-  sheet_name: "..."
-scope:
-  reporting_period: YYYY-MM
-  hotel_set: "資料に記載された対象群"
-  aggregation: individual | portfolio_total | selected_hotels
-metrics:
-  occupancy_pct: null
-  adr_jpy: null
-  revpar_jpy: null
-  sales_million_jpy: null
+publication_status: partially_quarantined
+quarantined_years:
+  - "2015"
+  - "2016"
+datasets:
+  "2020":
+    source_sha256: "..."
+    coverage_months_by_kpi:
+      occupancy_pct: 12
+      adr_jpy: 12
+    aggregation:
+      portfolio_weighted: false
+      comparability_status: not_comparable_to_portfolio_aggregate_without_...
+    publication_status: quarantined_equal_weight_hotel_summary
 ```
 
-## データ品質の確認
+## なぜ単純平均では公式KPIにならないか
 
-- Excelの対象年月とファイル名が一致するか
-- 稼働率が小数か百分率か
-- ADR・RevPAR・売上高の単位が正しいか
-- 対象ホテル数が前年と変わっていないか
-- 個別ホテル値と合計値を混ぜていないか
-- 欠損を0として保存していないか
-- RevPARが`稼働率 × ADR`と概ね整合するか
-- 訂正版のExcelが公開されていないか
-- 同じ月を複数ファイルから重複取得していないか
+ホテルAが100室、ホテルBが1,000室の場合、両ホテルの稼働率を同じ重みで平均すると、販売可能室数に基づくポートフォリオ稼働率とは一致しません。
 
-## READMEから削除した固定値
+正しい再集計には、月・ホテルごとに少なくとも次が必要です。
 
-以前のREADMEには「126か月」「抽出成功率100%」「11年間すべて抽出完了」などが記載されていました。データ更新後に自動再計算される保証がないため、固定値としては削除しました。
+- 販売可能客室数
+- 販売客室数
+- 客室売上
+- 対象ホテルの在籍期間
+- 休館・改装・取得・売却の扱い
 
-最新の件数、対象期間、欠損率は、生成YAMLを検証するスクリプトから算出してください。
+```text
+ポートフォリオ稼働率 = Σ販売客室数 / Σ販売可能客室数
+ポートフォリオADR    = Σ客室売上 / Σ販売客室数
+ポートフォリオRevPAR = Σ客室売上 / Σ販売可能客室数
+```
 
-## 特殊期間の解釈
+これらの分母がない場合、ホテル別KPIの平均を公式集計へ変換できません。
 
-感染症、災害、大規模イベント、ホテル取得・売却、改装、休館などはKPIへ影響します。数値変化の理由を自動的に一つへ帰属させず、JHRの公式説明資料を確認してください。
+## テスト
+
+```bash
+python -m unittest discover -s tests -v
+```
+
+- 0%稼働を欠損にしない
+- ホテル別値を非加重平均として表示
+- 公式集計候補行の重複を拒否
+- 売上は合計、ADRは平均という現在の変換意味を検証
+- RevPAR恒等式の不整合を品質フラグ化
 
 ## 利用上の注意
 
-- JHRの公式資料が一次情報です
-- 本リポジトリのYAMLは抽出・変換した二次データです
-- 公式資料と変換データが異なる場合は公式資料を優先してください
-- ホテル群や集計基準が違う年度を単純比較しないでください
-- 本データは投資助言、REIT評価、将来業績予測ではありません
+- 公式Excelを一次情報として優先してください
+- 旧`jhr_11year_fixed_kpi.yaml`と`jhr_11year_comprehensive_kpi.yaml`は監査前成果物です
+- 隔離年を時系列グラフ・投資分析へ接続しないでください
+- 対象ホテル群や集計定義が違う年度を単純比較しないでください
+- 本データは投資助言や将来業績予測ではありません
 
-**README最終監査:** 2026-08-01
+**README最終監査:** 2026-08-02
