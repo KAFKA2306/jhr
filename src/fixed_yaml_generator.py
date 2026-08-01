@@ -87,7 +87,7 @@ def _file_sha256(path: Path) -> str:
 
 
 class AuditedJHRDataExtractor:
-    """Excelの行を来歴付きで抽出し、推測集計を公式集計と区別する。"""
+    """公式集計行だけを公開系列へ変換する、fail-closedな抽出器。"""
 
     def __init__(self, data_dir: str | Path = "data") -> None:
         self.data_dir = Path(data_dir)
@@ -129,9 +129,7 @@ class AuditedJHRDataExtractor:
             year_label = "" if len(row) < 2 or pd.isna(row.iloc[1]) else str(row.iloc[1])
             if western not in year_label and (not era or era not in year_label):
                 continue
-            observations.append(
-                RowObservation(index, kpi, self._row_values(row, kpi))
-            )
+            observations.append(RowObservation(index, kpi, self._row_values(row, kpi)))
         return observations
 
     @staticmethod
@@ -149,8 +147,10 @@ class AuditedJHRDataExtractor:
         }
         if duplicate:
             raise ExtractionError(
-                f"{year}: multiple source aggregate rows for the same KPI: {duplicate}"
+                f"{year}: multiple candidate aggregate rows for the same KPI: {duplicate}"
             )
+        if not any(rows_by_kpi.values()):
+            raise ExtractionError(f"{year}: no source aggregate rows found")
         for kpi, rows in rows_by_kpi.items():
             if not rows:
                 continue
@@ -166,48 +166,25 @@ class AuditedJHRDataExtractor:
         }
 
     @staticmethod
-    def _equal_weight_hotel_summary(
+    def _quarantine_individual_rows(
         observations: list[RowObservation], year: int
-    ) -> tuple[dict[str, dict[str, float | None]], dict[str, Any]]:
-        months = _empty_months()
-        rows_by_kpi: dict[str, list[RowObservation]] = {key: [] for key in KPI_KEYS}
-        for observation in observations:
-            rows_by_kpi[observation.kpi].append(observation)
-        if not any(rows_by_kpi.values()):
-            raise ExtractionError(f"{year}: no KPI rows found")
-
-        contributing_rows: dict[str, dict[str, int]] = {
-            f"{month:02d}": {} for month in range(1, 13)
+    ) -> dict[str, Any]:
+        rows_by_kpi = {
+            key: [row.row_index for row in observations if row.kpi == key]
+            for key in KPI_KEYS
         }
-        for kpi, rows in rows_by_kpi.items():
-            for month_index in range(12):
-                values = [
-                    row.values[month_index]
-                    for row in rows
-                    if row.values[month_index] is not None
-                ]
-                month_key = f"{month_index + 1:02d}"
-                contributing_rows[month_key][kpi] = len(values)
-                if not values:
-                    continue
-                if kpi == "sales_total_mil_jpy":
-                    months[month_key][kpi] = round(sum(values), 3)
-                else:
-                    months[month_key][kpi] = round(sum(values) / len(values), 3)
-
-        return months, {
-            "aggregation_semantics": {
-                "occupancy_pct": "equal_weighted_mean_of_reported_hotel_rows",
-                "adr_jpy": "equal_weighted_mean_of_reported_hotel_rows",
-                "revpar_jpy": "equal_weighted_mean_of_reported_hotel_rows",
-                "sales_total_mil_jpy": "sum_of_reported_hotel_rows",
-            },
-            "portfolio_weighted": False,
-            "comparability_status": (
-                "not_comparable_to_portfolio_aggregate_without_available_rooms, "
-                "occupied_rooms, and sold-room revenue weights"
+        return {
+            "year": year,
+            "publication_status": "quarantined_no_verified_portfolio_weights",
+            "monthly_data": _empty_months(),
+            "annual_summary": None,
+            "candidate_rows": rows_by_kpi,
+            "reason": (
+                "The source contains individual-hotel rows. Occupancy requires "
+                "available-room weights, ADR requires sold-room weights, and RevPAR "
+                "requires available-room or room-revenue inputs. Equal-weight means "
+                "are not a portfolio KPI and are therefore not calculated."
             ),
-            "contributing_rows": contributing_rows,
         }
 
     @staticmethod
@@ -239,23 +216,19 @@ class AuditedJHRDataExtractor:
         months: dict[str, dict[str, float | None]]
     ) -> dict[str, Any]:
         summary: dict[str, Any] = {
-            "method": "arithmetic_mean_of_available_months",
+            "method": "arithmetic_mean_of_available_source_aggregate_months",
             "official_annual_value": False,
         }
         for key in ("occupancy_pct", "adr_jpy", "revpar_jpy"):
             values = [data[key] for data in months.values() if data[key] is not None]
-            summary[f"{key}_mean"] = (
-                round(sum(values) / len(values), 3) if values else None
-            )
+            summary[f"{key}_mean"] = round(sum(values) / len(values), 3) if values else None
             summary[f"{key}_months"] = len(values)
         sales = [
             data["sales_total_mil_jpy"]
             for data in months.values()
             if data["sales_total_mil_jpy"] is not None
         ]
-        summary["sales_total_available_months_mil_jpy"] = (
-            round(sum(sales), 3) if sales else None
-        )
+        summary["sales_total_available_months_mil_jpy"] = round(sum(sales), 3) if sales else None
         summary["sales_total_months"] = len(sales)
         return summary
 
@@ -267,34 +240,32 @@ class AuditedJHRDataExtractor:
         sheet = self._select_sheet(excel.sheet_names, year)
         frame = pd.read_excel(path, sheet_name=sheet, header=None)
         observations = self._candidate_rows(frame, year)
-        if year >= 2024:
-            months, semantics = self._source_aggregate(observations, year)
-        else:
-            months, semantics = self._equal_weight_hotel_summary(observations, year)
-
-        coverage = {
-            key: sum(data[key] is not None for data in months.values())
-            for key in KPI_KEYS
-        }
-        if max(coverage.values(), default=0) == 0:
-            raise ExtractionError(f"{year}: no valid KPI observations")
-        flags = self._quality_flags(months)
-        return {
+        common = {
             "year": year,
             "source_file": str(path),
             "source_sha256": _file_sha256(path),
             "sheet_used": sheet,
             "extracted_at_utc": datetime.now(timezone.utc).isoformat(),
+        }
+
+        if year < 2024:
+            return {**common, **self._quarantine_individual_rows(observations, year)}
+
+        months, semantics = self._source_aggregate(observations, year)
+        coverage = {
+            key: sum(data[key] is not None for data in months.values())
+            for key in KPI_KEYS
+        }
+        if max(coverage.values(), default=0) == 0:
+            raise ExtractionError(f"{year}: no valid source aggregate observations")
+        return {
+            **common,
             "monthly_data": months,
             "coverage_months_by_kpi": coverage,
             "aggregation": semantics,
             "annual_summary": self._annual_summary(months),
-            "quality_flags": flags,
-            "publication_status": (
-                "source_aggregate_observation"
-                if year >= 2024
-                else "quarantined_equal_weight_hotel_summary"
-            ),
+            "quality_flags": self._quality_flags(months),
+            "publication_status": "source_aggregate_observation",
         }
 
     def generate_yaml(
@@ -302,10 +273,19 @@ class AuditedJHRDataExtractor:
     ) -> str:
         if start_year > end_year:
             raise ValueError("start_year must not exceed end_year")
-        datasets = {
-            str(year): self.process_excel_file(year)
-            for year in range(start_year, end_year + 1)
-        }
+        datasets: dict[str, Any] = {}
+        for year in range(start_year, end_year + 1):
+            try:
+                datasets[str(year)] = self.process_excel_file(year)
+            except ExtractionError as exc:
+                datasets[str(year)] = {
+                    "year": year,
+                    "publication_status": "quarantined_extraction_error",
+                    "monthly_data": _empty_months(),
+                    "annual_summary": None,
+                    "reason": str(exc),
+                }
+
         quarantined = [
             year
             for year, data in datasets.items()
@@ -313,21 +293,19 @@ class AuditedJHRDataExtractor:
         ]
         document = {
             "jhr_kpi_audited": {
-                "schema_version": "5.0",
+                "schema_version": "6.0",
                 "generated_at_utc": datetime.now(timezone.utc).isoformat(),
                 "source_page": "https://www.jhrth.co.jp/ja/portfolio/review.html",
                 "coverage": {
                     "start_year": start_year,
                     "end_year": end_year,
-                    "years": len(datasets),
+                    "requested_years": end_year - start_year + 1,
                 },
-                "publication_status": (
-                    "partially_quarantined" if quarantined else "source_observations"
-                ),
+                "publication_status": "partially_quarantined" if quarantined else "source_observations",
                 "quarantined_years": quarantined,
                 "warning": (
-                    "Equal-weight means of hotel rows are not portfolio-weighted KPI. "
-                    "Do not splice them into source-reported aggregate series."
+                    "Individual-hotel rows are never averaged into portfolio KPIs. "
+                    "Only source-reported aggregate rows are publishable."
                 ),
                 "datasets": datasets,
             }
@@ -335,7 +313,6 @@ class AuditedJHRDataExtractor:
         return yaml.safe_dump(document, allow_unicode=True, sort_keys=False)
 
 
-# 旧クラス名のimport互換性だけを維持する。
 FixedJHRDataExtractor = AuditedJHRDataExtractor
 
 
