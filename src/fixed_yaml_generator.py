@@ -1,350 +1,356 @@
-"""
-修正版: 正確なExcelデータ抽出によるYAML生成
-"""
+from __future__ import annotations
+
+import argparse
+import hashlib
+import math
+from dataclasses import dataclass
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any, Iterable
+
 import pandas as pd
 import yaml
-from pathlib import Path
-from datetime import datetime
-import logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-class FixedJHRDataExtractor:
-    """修正版JHRデータ抽出クラス"""
-    def __init__(self, data_dir: str = "data"):
+
+
+class ExtractionError(RuntimeError):
+    pass
+
+
+KPI_KEYS = (
+    "occupancy_pct",
+    "adr_jpy",
+    "revpar_jpy",
+    "sales_total_mil_jpy",
+)
+
+
+@dataclass(frozen=True)
+class RowObservation:
+    row_index: int
+    kpi: str
+    values: tuple[float | None, ...]
+
+
+def _empty_months() -> dict[str, dict[str, float | None]]:
+    return {
+        f"{month:02d}": {key: None for key in KPI_KEYS}
+        for month in range(1, 13)
+    }
+
+
+def _number(value: Any) -> float | None:
+    if pd.isna(value) or str(value).strip() in {"", "-", "—", "N/A"}:
+        return None
+    try:
+        number = float(value)
+    except (TypeError, ValueError):
+        return None
+    return number if math.isfinite(number) else None
+
+
+def _normalize_value(kpi: str, value: Any) -> float | None:
+    number = _number(value)
+    if number is None:
+        return None
+    if kpi == "occupancy_pct":
+        if 0 <= number <= 1:
+            number *= 100
+        if not 0 <= number <= 100:
+            raise ExtractionError(f"occupancy out of range: {number}")
+        return round(number, 1)
+    if kpi in {"adr_jpy", "revpar_jpy", "sales_total_mil_jpy"}:
+        if number < 0:
+            raise ExtractionError(f"negative {kpi}: {number}")
+        return number
+    raise ExtractionError(f"unknown KPI: {kpi}")
+
+
+def _kpi_from_label(label: str) -> str | None:
+    normalized = label.replace(" ", "")
+    if "客室稼働率" in normalized or "稼働率" in normalized:
+        return "occupancy_pct"
+    if "RevPAR" in label:
+        return "revpar_jpy"
+    if "ADR" in label:
+        return "adr_jpy"
+    if "売上高" in normalized or normalized.startswith("売上"):
+        return "sales_total_mil_jpy"
+    return None
+
+
+def _file_sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+class AuditedJHRDataExtractor:
+    """Excelの行を来歴付きで抽出し、推測集計を公式集計と区別する。"""
+
+    def __init__(self, data_dir: str | Path = "data") -> None:
         self.data_dir = Path(data_dir)
-    def extract_individual_hotels_aggregated(self, df: pd.DataFrame, target_year: int) -> dict:
-        """個別ホテルデータを集計（2019年、2020-2023年用）"""
-        monthly_data = {}
-        for month in range(1, 13):
-            monthly_data[f"{month:02d}"] = {
-                'occupancy_pct': 0.0,
-                'adr_jpy': 0.0,
-                'revpar_jpy': 0.0,
-                'sales_total_mil_jpy': 0.0,
-                'occupancy_count': 0,
-                'adr_count': 0,
-                'revpar_count': 0,
-                'sales_count': 0
-            }
-        current_hotel_count = 0
-        current_kpi_type = None
-        for row_idx in range(len(df)):
-            row = df.iloc[row_idx]
-            first_col = str(row.iloc[0]) if pd.notna(row.iloc[0]) else ""
-            if "物件番号" in first_col:
-                current_hotel_count += 1
-                current_kpi_type = None
+
+    @staticmethod
+    def _select_sheet(sheet_names: Iterable[str], year: int) -> str:
+        names = list(sheet_names)
+        if year >= 2024:
+            matches = [name for name in names if "変動賃料等導入28ホテル" in name]
+        elif year == 2019:
+            matches = [name for name in names if "変動賃料等導入" in name]
+        else:
+            matches = [name for name in names if "HMJ" in name]
+        if len(matches) != 1:
+            raise ExtractionError(
+                f"{year}: expected one KPI sheet, found {matches or 'none'}"
+            )
+        return matches[0]
+
+    @staticmethod
+    def _row_values(row: pd.Series, kpi: str) -> tuple[float | None, ...]:
+        return tuple(
+            _normalize_value(kpi, row.iloc[index]) if index < len(row) else None
+            for index in range(2, 14)
+        )
+
+    def _candidate_rows(
+        self, df: pd.DataFrame, year: int
+    ) -> list[RowObservation]:
+        observations: list[RowObservation] = []
+        western = f"{year}年"
+        era = f"平成{year - 1988}年" if 1989 <= year <= 2018 else None
+        for index in range(len(df)):
+            row = df.iloc[index]
+            label = "" if pd.isna(row.iloc[0]) else str(row.iloc[0])
+            kpi = _kpi_from_label(label)
+            if not kpi:
                 continue
-            if "客室稼働率" in first_col:
-                current_kpi_type = "occupancy_pct"
-            elif "ADR" in first_col and "円" in first_col:
-                current_kpi_type = "adr_jpy"  
-            elif "RevPAR" in first_col and "円" in first_col:
-                current_kpi_type = "revpar_jpy"
-            elif "売上高" in first_col and "百万円" in first_col:
-                current_kpi_type = "sales_total_mil_jpy"
-            if not current_kpi_type:
+            year_label = "" if len(row) < 2 or pd.isna(row.iloc[1]) else str(row.iloc[1])
+            if western not in year_label and (not era or era not in year_label):
                 continue
-            second_col = str(row.iloc[1]) if pd.notna(row.iloc[1]) else ""
-            if f"{target_year}年" not in second_col:
+            observations.append(
+                RowObservation(index, kpi, self._row_values(row, kpi))
+            )
+        return observations
+
+    @staticmethod
+    def _source_aggregate(
+        observations: list[RowObservation], year: int
+    ) -> tuple[dict[str, dict[str, float | None]], dict[str, Any]]:
+        months = _empty_months()
+        rows_by_kpi: dict[str, list[RowObservation]] = {key: [] for key in KPI_KEYS}
+        for observation in observations:
+            rows_by_kpi[observation.kpi].append(observation)
+        duplicate = {
+            key: [row.row_index for row in rows]
+            for key, rows in rows_by_kpi.items()
+            if len(rows) > 1
+        }
+        if duplicate:
+            raise ExtractionError(
+                f"{year}: multiple source aggregate rows for the same KPI: {duplicate}"
+            )
+        for kpi, rows in rows_by_kpi.items():
+            if not rows:
                 continue
-            logger.info(f"ホテル{current_hotel_count}: {target_year}年 {current_kpi_type} データ行{row_idx}")
-            for month_idx in range(12):
-                col_idx = month_idx + 2
-                if col_idx < len(row):
-                    value = row.iloc[col_idx]
-                    if pd.notna(value) and str(value) not in ['0', '-', '']:
-                        try:
-                            numeric_value = float(value)
-                            if current_kpi_type == "occupancy_pct" and 0 <= numeric_value <= 1.0:
-                                monthly_data[f"{month_idx+1:02d}"]["occupancy_pct"] += numeric_value * 100
-                                monthly_data[f"{month_idx+1:02d}"]["occupancy_count"] += 1
-                            elif current_kpi_type in ["adr_jpy", "revpar_jpy"] and 1000 <= numeric_value <= 100000:
-                                monthly_data[f"{month_idx+1:02d}"][current_kpi_type] += numeric_value
-                                monthly_data[f"{month_idx+1:02d}"][f"{current_kpi_type.split('_')[0]}_count"] += 1
-                            elif current_kpi_type == "sales_total_mil_jpy" and numeric_value > 0:
-                                monthly_data[f"{month_idx+1:02d}"]["sales_total_mil_jpy"] += numeric_value
-                                monthly_data[f"{month_idx+1:02d}"]["sales_count"] += 1
-                        except (ValueError, TypeError):
-                            continue
-        for month_key in monthly_data:
-            month_data = monthly_data[month_key]
-            if month_data["occupancy_count"] > 0:
-                monthly_data[month_key]["occupancy_pct"] = round(
-                    month_data["occupancy_pct"] / month_data["occupancy_count"], 1
-                )
-            else:
-                monthly_data[month_key]["occupancy_pct"] = None
-            if month_data["adr_count"] > 0:
-                monthly_data[month_key]["adr_jpy"] = int(
-                    month_data["adr_jpy"] / month_data["adr_count"]
-                )
-            else:
-                monthly_data[month_key]["adr_jpy"] = None
-            if month_data["revpar_count"] > 0:
-                monthly_data[month_key]["revpar_jpy"] = int(
-                    month_data["revpar_jpy"] / month_data["revpar_count"] 
-                )
-            else:
-                monthly_data[month_key]["revpar_jpy"] = None
-            if month_data["sales_count"] > 0:
-                monthly_data[month_key]["sales_total_mil_jpy"] = int(month_data["sales_total_mil_jpy"])
-            else:
-                monthly_data[month_key]["sales_total_mil_jpy"] = None
-            for key in list(month_data.keys()):
-                if "_count" in key:
-                    del monthly_data[month_key][key]
-        logger.info(f"{target_year}年: {current_hotel_count}ホテル集計完了")
-        return monthly_data
-    def extract_aggregated_data(self, df: pd.DataFrame, target_year: int) -> dict:
-        """28ホテル合計データを抽出（2022年以降のファイル形式用）"""
-        monthly_data = {}
-        for month in range(1, 13):
-            monthly_data[f"{month:02d}"] = {
-                'occupancy_pct': None,
-                'adr_jpy': None, 
-                'revpar_jpy': None,
-                'sales_total_mil_jpy': None,
-                'sales_lodging_mil_jpy': None,
-                'sales_fnb_mil_jpy': None,
-                'sales_other_mil_jpy': None
-            }
-        for row_idx in range(len(df)):
-            row = df.iloc[row_idx]
-            first_col = str(row.iloc[0]) if pd.notna(row.iloc[0]) else ""
-            kpi_type = None
-            if "客室稼働率" in first_col:
-                kpi_type = "occupancy_pct"
-            elif "ADR" in first_col and "円" in first_col:
-                kpi_type = "adr_jpy"
-            elif "RevPAR" in first_col and "円" in first_col:
-                kpi_type = "revpar_jpy"
-            elif "売上高" in first_col and "百万円" in first_col:
-                kpi_type = "sales_total_mil_jpy"
-            if not kpi_type:
-                continue
-            second_col = str(row.iloc[1]) if pd.notna(row.iloc[1]) else ""
-            if f"{target_year}年" not in second_col:
-                continue
-            logger.info(f"{target_year}年 {kpi_type} データ行発見: 行{row_idx}")
-            for month_idx in range(12):
-                col_idx = month_idx + 2
-                if col_idx < len(row):
-                    value = row.iloc[col_idx]
-                    if pd.notna(value) and str(value) not in ['0', '-', '']:
-                        try:
-                            numeric_value = float(value)
-                            if kpi_type == "occupancy_pct" and numeric_value <= 1.0:
-                                numeric_value = numeric_value * 100
-                            if kpi_type == "occupancy_pct" and 0 <= numeric_value <= 100:
-                                monthly_data[f"{month_idx+1:02d}"][kpi_type] = round(numeric_value, 1)
-                            elif kpi_type in ["adr_jpy", "revpar_jpy"] and 1000 <= numeric_value <= 100000:
-                                monthly_data[f"{month_idx+1:02d}"][kpi_type] = int(numeric_value)
-                            elif kpi_type.endswith("_mil_jpy") and numeric_value > 0:
-                                monthly_data[f"{month_idx+1:02d}"][kpi_type] = int(numeric_value)
-                        except (ValueError, TypeError):
-                            continue
-        return monthly_data
-    def extract_legacy_format(self, df: pd.DataFrame, target_year: int) -> dict:
-        """旧形式データ抽出（2015-2018年用）"""
-        monthly_data = {}
-        for month in range(1, 13):
-            monthly_data[f"{month:02d}"] = {
-                'occupancy_pct': None,
-                'adr_jpy': None,
-                'revpar_jpy': None,
-                'sales_total_mil_jpy': None,
-                'sales_lodging_mil_jpy': None,
-                'sales_fnb_mil_jpy': None,
-                'sales_other_mil_jpy': None
-            }
-        heisei_year = target_year - 1988 if target_year >= 1989 else None
-        year_patterns = [f"{target_year}年", f"平成{heisei_year}年" if heisei_year else ""]
-        for row_idx in range(len(df)):
-            row = df.iloc[row_idx]
-            first_col = str(row.iloc[0]) if pd.notna(row.iloc[0]) else ""
-            kpi_type = None
-            if "客室稼働率" in first_col or "稼働率" in first_col:
-                kpi_type = "occupancy_pct"
-            elif "ADR" in first_col:
-                kpi_type = "adr_jpy"
-            elif "RevPAR" in first_col:
-                kpi_type = "revpar_jpy"
-            elif "売上" in first_col:
-                kpi_type = "sales_total_mil_jpy"
-            if not kpi_type:
-                continue
-            year_found = False
-            second_col = str(row.iloc[1]) if pd.notna(row.iloc[1]) else ""
-            for pattern in year_patterns:
-                if pattern and pattern in second_col:
-                    year_found = True
-                    break
-            if not year_found:
-                continue
-            logger.info(f"{target_year}年 {kpi_type} データ行発見: 行{row_idx}")
-            for month_idx in range(12):
-                col_idx = month_idx + 2
-                if col_idx < len(row):
-                    value = row.iloc[col_idx]
-                    if pd.notna(value) and str(value) not in ['0', '-']:
-                        try:
-                            numeric_value = float(value)
-                            if kpi_type == "occupancy_pct":
-                                if numeric_value > 1:
-                                    monthly_data[f"{month_idx+1:02d}"][kpi_type] = round(numeric_value, 1)
-                                else:
-                                    monthly_data[f"{month_idx+1:02d}"][kpi_type] = round(numeric_value * 100, 1)
-                            elif kpi_type in ["adr_jpy", "revpar_jpy"]:
-                                monthly_data[f"{month_idx+1:02d}"][kpi_type] = int(numeric_value)
-                            elif kpi_type.endswith("_mil_jpy"):
-                                monthly_data[f"{month_idx+1:02d}"][kpi_type] = int(numeric_value)
-                        except (ValueError, TypeError):
-                            continue
-        return monthly_data
-    def process_excel_file(self, year: int) -> dict:
-        """年度別Excelファイル処理"""
-        file_path = self.data_dir / f"jhr_{year}_hotel_performance.xlsx"
-        if not file_path.exists():
-            logger.error(f"{year}年ファイル未発見")
-            return None
-        logger.info(f"=== {year}年ファイル処理開始 ===")
-        try:
-            excel_file = pd.ExcelFile(file_path)
-            main_sheet = None
-            if year >= 2024:
-                for sheet_name in excel_file.sheet_names:
-                    if "変動賃料等導入28ホテル" in sheet_name:
-                        main_sheet = sheet_name
-                        break
-            elif year == 2019:
-                for sheet_name in excel_file.sheet_names:
-                    if "変動賃料等導入" in sheet_name:
-                        main_sheet = sheet_name
-                        break
-            elif 2020 <= year <= 2023:
-                for sheet_name in excel_file.sheet_names:
-                    if "HMJ" in sheet_name:
-                        main_sheet = sheet_name
-                        break
-            else:
-                for sheet_name in excel_file.sheet_names:
-                    if "HMJ" in sheet_name:
-                        main_sheet = sheet_name
-                        break
-            if not main_sheet:
-                logger.error(f"{year}年: 適切なシートが見つかりません")
-                return None
-            logger.info(f"{year}年: シート '{main_sheet}' 使用")
-            df = pd.read_excel(file_path, sheet_name=main_sheet, header=None)
-            logger.info(f"{year}年: データ形状 {df.shape}")
-            if year >= 2024:
-                monthly_data = self.extract_aggregated_data(df, year)
-            elif year == 2019 or (2020 <= year <= 2023):
-                monthly_data = self.extract_individual_hotels_aggregated(df, year)
-            else:
-                monthly_data = self.extract_legacy_format(df, year)
-            valid_months = sum(1 for data in monthly_data.values() 
-                             if data['occupancy_pct'] is not None)
-            logger.info(f"{year}年: 有効月数 {valid_months}/12")
-            if valid_months == 0:
-                logger.warning(f"{year}年: データ抽出失敗")
-                return None
-            annual_summary = self.calculate_annual_summary(monthly_data)
-            return {
-                "year": year,
-                "data_source": str(file_path),
-                "sheet_used": main_sheet,
-                "monthly_data": monthly_data,
-                "annual_summary": annual_summary,
-                "valid_months": valid_months,
-                "extraction_date": datetime.now().strftime("%Y-%m-%d")
-            }
-        except Exception as e:
-            logger.error(f"{year}年処理エラー: {e}")
-            return None
-    def calculate_annual_summary(self, monthly_data: dict) -> dict:
-        """年間サマリー算出"""
-        valid_data = [data for data in monthly_data.values() 
-                     if data.get('occupancy_pct') is not None]
-        if not valid_data:
-            return {"occupancy_avg_pct": None, "adr_avg_jpy": None, 
-                   "revpar_avg_jpy": None, "sales_total_annual_mil_jpy": None}
-        occupancies = [d['occupancy_pct'] for d in valid_data if d['occupancy_pct']]
-        adrs = [d['adr_jpy'] for d in valid_data if d['adr_jpy']]
-        revpars = [d['revpar_jpy'] for d in valid_data if d['revpar_jpy']]
-        sales = [d['sales_total_mil_jpy'] for d in valid_data if d['sales_total_mil_jpy']]
+            for month, value in enumerate(rows[0].values, start=1):
+                months[f"{month:02d}"][kpi] = value
+        return months, {
+            "aggregation_semantics": "source_reported_aggregate_row",
+            "portfolio_weighted": "as_reported_by_source_not_recomputed",
+            "source_rows": {
+                key: [row.row_index for row in rows]
+                for key, rows in rows_by_kpi.items()
+            },
+        }
+
+    @staticmethod
+    def _equal_weight_hotel_summary(
+        observations: list[RowObservation], year: int
+    ) -> tuple[dict[str, dict[str, float | None]], dict[str, Any]]:
+        months = _empty_months()
+        rows_by_kpi: dict[str, list[RowObservation]] = {key: [] for key in KPI_KEYS}
+        for observation in observations:
+            rows_by_kpi[observation.kpi].append(observation)
+        if not any(rows_by_kpi.values()):
+            raise ExtractionError(f"{year}: no KPI rows found")
+
+        contributing_rows: dict[str, dict[str, int]] = {
+            f"{month:02d}": {} for month in range(1, 13)
+        }
+        for kpi, rows in rows_by_kpi.items():
+            for month_index in range(12):
+                values = [
+                    row.values[month_index]
+                    for row in rows
+                    if row.values[month_index] is not None
+                ]
+                month_key = f"{month_index + 1:02d}"
+                contributing_rows[month_key][kpi] = len(values)
+                if not values:
+                    continue
+                if kpi == "sales_total_mil_jpy":
+                    months[month_key][kpi] = round(sum(values), 3)
+                else:
+                    months[month_key][kpi] = round(sum(values) / len(values), 3)
+
+        return months, {
+            "aggregation_semantics": {
+                "occupancy_pct": "equal_weighted_mean_of_reported_hotel_rows",
+                "adr_jpy": "equal_weighted_mean_of_reported_hotel_rows",
+                "revpar_jpy": "equal_weighted_mean_of_reported_hotel_rows",
+                "sales_total_mil_jpy": "sum_of_reported_hotel_rows",
+            },
+            "portfolio_weighted": False,
+            "comparability_status": (
+                "not_comparable_to_portfolio_aggregate_without_available_rooms, "
+                "occupied_rooms, and sold-room revenue weights"
+            ),
+            "contributing_rows": contributing_rows,
+        }
+
+    @staticmethod
+    def _quality_flags(
+        months: dict[str, dict[str, float | None]]
+    ) -> list[dict[str, Any]]:
+        flags: list[dict[str, Any]] = []
+        for month, data in months.items():
+            occupancy = data.get("occupancy_pct")
+            adr = data.get("adr_jpy")
+            revpar = data.get("revpar_jpy")
+            if occupancy is not None and adr is not None and revpar is not None:
+                implied = adr * occupancy / 100
+                tolerance = max(100.0, abs(revpar) * 0.05)
+                if abs(implied - revpar) > tolerance:
+                    flags.append(
+                        {
+                            "month": month,
+                            "flag": "revpar_identity_mismatch",
+                            "reported_revpar": revpar,
+                            "implied_revpar": round(implied, 3),
+                            "severity": "warning",
+                        }
+                    )
+        return flags
+
+    @staticmethod
+    def _annual_summary(
+        months: dict[str, dict[str, float | None]]
+    ) -> dict[str, Any]:
+        summary: dict[str, Any] = {
+            "method": "arithmetic_mean_of_available_months",
+            "official_annual_value": False,
+        }
+        for key in ("occupancy_pct", "adr_jpy", "revpar_jpy"):
+            values = [data[key] for data in months.values() if data[key] is not None]
+            summary[f"{key}_mean"] = (
+                round(sum(values) / len(values), 3) if values else None
+            )
+            summary[f"{key}_months"] = len(values)
+        sales = [
+            data["sales_total_mil_jpy"]
+            for data in months.values()
+            if data["sales_total_mil_jpy"] is not None
+        ]
+        summary["sales_total_available_months_mil_jpy"] = (
+            round(sum(sales), 3) if sales else None
+        )
+        summary["sales_total_months"] = len(sales)
+        return summary
+
+    def process_excel_file(self, year: int) -> dict[str, Any]:
+        path = self.data_dir / f"jhr_{year}_hotel_performance.xlsx"
+        if not path.exists():
+            raise ExtractionError(f"Missing source file: {path}")
+        excel = pd.ExcelFile(path)
+        sheet = self._select_sheet(excel.sheet_names, year)
+        frame = pd.read_excel(path, sheet_name=sheet, header=None)
+        observations = self._candidate_rows(frame, year)
+        if year >= 2024:
+            months, semantics = self._source_aggregate(observations, year)
+        else:
+            months, semantics = self._equal_weight_hotel_summary(observations, year)
+
+        coverage = {
+            key: sum(data[key] is not None for data in months.values())
+            for key in KPI_KEYS
+        }
+        if max(coverage.values(), default=0) == 0:
+            raise ExtractionError(f"{year}: no valid KPI observations")
+        flags = self._quality_flags(months)
         return {
-            "occupancy_avg_pct": round(sum(occupancies) / len(occupancies), 1) if occupancies else None,
-            "adr_avg_jpy": int(sum(adrs) / len(adrs)) if adrs else None,
-            "revpar_avg_jpy": int(sum(revpars) / len(revpars)) if revpars else None,
-            "sales_total_annual_mil_jpy": sum(sales) if sales else None
+            "year": year,
+            "source_file": str(path),
+            "source_sha256": _file_sha256(path),
+            "sheet_used": sheet,
+            "extracted_at_utc": datetime.now(timezone.utc).isoformat(),
+            "monthly_data": months,
+            "coverage_months_by_kpi": coverage,
+            "aggregation": semantics,
+            "annual_summary": self._annual_summary(months),
+            "quality_flags": flags,
+            "publication_status": (
+                "source_aggregate_observation"
+                if year >= 2024
+                else "quarantined_equal_weight_hotel_summary"
+            ),
         }
-    def generate_yaml(self) -> str:
-        """修正版YAML生成"""
-        logger.info("=== 修正版11年データ処理開始 ===")
-        all_data = {}
-        successful_years = []
-        for year in range(2015, 2026):
-            result = self.process_excel_file(year)
-            if result:
-                all_data[year] = result
-                successful_years.append(year)
-        logger.info(f"処理成功年度: {successful_years}")
-        yaml_data = {
-            "jhr_comprehensive_kpi_fixed": {
-                "schema_version": "4.0",
-                "description": "JHR 11年間実績KPI完全版（修正済み）",
-                "source": {
-                    "primary_url": "https://www.jhrth.co.jp/ja/portfolio/review.html",
-                    "last_updated": datetime.now().strftime("%Y-%m-%d")
+
+    def generate_yaml(
+        self, start_year: int = 2015, end_year: int = 2025
+    ) -> str:
+        if start_year > end_year:
+            raise ValueError("start_year must not exceed end_year")
+        datasets = {
+            str(year): self.process_excel_file(year)
+            for year in range(start_year, end_year + 1)
+        }
+        quarantined = [
+            year
+            for year, data in datasets.items()
+            if str(data["publication_status"]).startswith("quarantined")
+        ]
+        document = {
+            "jhr_kpi_audited": {
+                "schema_version": "5.0",
+                "generated_at_utc": datetime.now(timezone.utc).isoformat(),
+                "source_page": "https://www.jhrth.co.jp/ja/portfolio/review.html",
+                "coverage": {
+                    "start_year": start_year,
+                    "end_year": end_year,
+                    "years": len(datasets),
                 },
-                "extraction_method": {
-                    "modern_format": "2019年以降: 変動賃料等導入28ホテル集計",
-                    "legacy_format": "2015-2018年: HMJグループホテル等",
-                    "data_conversion": "占有率: 小数→%変換, ADR/RevPAR: 円単位"
-                },
-                "coverage_period": {
-                    "start_year": min(successful_years) if successful_years else 2015,
-                    "end_year": max(successful_years) if successful_years else 2025,
-                    "total_years": len(successful_years)
-                },
-                "datasets": {}
+                "publication_status": (
+                    "partially_quarantined" if quarantined else "source_observations"
+                ),
+                "quarantined_years": quarantined,
+                "warning": (
+                    "Equal-weight means of hotel rows are not portfolio-weighted KPI. "
+                    "Do not splice them into source-reported aggregate series."
+                ),
+                "datasets": datasets,
             }
         }
-        for year in sorted(successful_years):
-            data = all_data[year]
-            yaml_data["jhr_comprehensive_kpi_fixed"]["datasets"][str(year)] = {
-                "portfolio_type": "ホテル運営実績（実数値）",
-                "data_availability": "完全抽出済み",
-                "excel_source": data["data_source"],
-                "sheet_used": data["sheet_used"],
-                "extraction_date": data["extraction_date"],
-                "valid_months": data["valid_months"],
-                "monthly_data": data["monthly_data"],
-                "annual_summary": data["annual_summary"]
-            }
-            if 2020 <= year <= 2022:
-                yaml_data["jhr_comprehensive_kpi_fixed"]["datasets"][str(year)]["special_notes"] = ["COVID-19影響期"]
-        total_valid_records = sum(data["valid_months"] for data in all_data.values())
-        yaml_data["jhr_comprehensive_kpi_fixed"]["metadata"] = {
-            "created_date": datetime.now().strftime("%Y-%m-%d"),
-            "extraction_success_rate": f"{len(successful_years)}/11年 ({len(successful_years)/11*100:.1f}%)",
-            "total_valid_months": total_valid_records,
-            "data_completeness": "実績値による完全データ"
-        }
-        return yaml.dump(yaml_data, default_flow_style=False, allow_unicode=True, 
-                        sort_keys=False, width=120, indent=2)
-def main():
-    """メイン実行"""
-    extractor = FixedJHRDataExtractor()
-    logger.info("修正版YAMLファイル生成開始")
-    yaml_content = extractor.generate_yaml()
-    output_file = Path("jhr_11year_fixed_kpi.yaml")
-    with open(output_file, 'w', encoding='utf-8') as f:
-        f.write(yaml_content)
-    logger.info(f"修正版YAMLファイル生成完了: {output_file}")
-    print(f"\n✅ JHR 11年間修正版KPIデータベース作成完了")
-    print(f"📄 出力ファイル: {output_file}")
+        return yaml.safe_dump(document, allow_unicode=True, sort_keys=False)
+
+
+# 旧クラス名のimport互換性だけを維持する。
+FixedJHRDataExtractor = AuditedJHRDataExtractor
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--data-dir", default="data")
+    parser.add_argument("--start-year", type=int, default=2015)
+    parser.add_argument("--end-year", type=int, default=2025)
+    parser.add_argument("--output", default="jhr_audited_kpi.yaml")
+    args = parser.parse_args()
+    extractor = AuditedJHRDataExtractor(args.data_dir)
+    content = extractor.generate_yaml(args.start_year, args.end_year)
+    Path(args.output).write_text(content, encoding="utf-8")
+    print(args.output)
+
+
 if __name__ == "__main__":
     main()
