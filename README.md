@@ -1,5 +1,7 @@
 # JHRホテル業績KPI抽出
 
+[![Audit fixes](https://github.com/KAFKA2306/jhr/actions/workflows/audit-fixes.yml/badge.svg)](https://github.com/KAFKA2306/jhr/actions/workflows/audit-fixes.yml)
+
 JHR公式Excelから稼働率、ADR、RevPAR、売上高を抽出し、出典・対象範囲・集計意味を保存する研究プロジェクトです。
 
 ## 現在の重要な状態
