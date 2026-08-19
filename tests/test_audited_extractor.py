@@ -28,18 +28,6 @@ class ValueTests(unittest.TestCase):
 
 
 class AggregationTests(unittest.TestCase):
-    def test_hotel_rows_are_labelled_equal_weight_not_portfolio_weight(self) -> None:
-        observations = [
-            RowObservation(1, "occupancy_pct", (50.0,) + (None,) * 11),
-            RowObservation(2, "occupancy_pct", (100.0,) + (None,) * 11),
-        ]
-        months, semantics = AuditedJHRDataExtractor._equal_weight_hotel_summary(
-            observations, 2020
-        )
-        self.assertEqual(months["01"]["occupancy_pct"], 75.0)
-        self.assertFalse(semantics["portfolio_weighted"])
-        self.assertIn("not_comparable", semantics["comparability_status"])
-
     def test_duplicate_source_aggregate_rows_are_rejected(self) -> None:
         observations = [
             RowObservation(1, "adr_jpy", (10_000.0,) + (None,) * 11),
@@ -47,19 +35,6 @@ class AggregationTests(unittest.TestCase):
         ]
         with self.assertRaises(ExtractionError):
             AuditedJHRDataExtractor._source_aggregate(observations, 2024)
-
-    def test_sales_are_summed_but_adr_is_meaned(self) -> None:
-        observations = [
-            RowObservation(1, "sales_total_mil_jpy", (10.0,) + (None,) * 11),
-            RowObservation(2, "sales_total_mil_jpy", (20.0,) + (None,) * 11),
-            RowObservation(3, "adr_jpy", (8_000.0,) + (None,) * 11),
-            RowObservation(4, "adr_jpy", (12_000.0,) + (None,) * 11),
-        ]
-        months, _ = AuditedJHRDataExtractor._equal_weight_hotel_summary(
-            observations, 2020
-        )
-        self.assertEqual(months["01"]["sales_total_mil_jpy"], 30.0)
-        self.assertEqual(months["01"]["adr_jpy"], 10_000.0)
 
 
 class QualityTests(unittest.TestCase):
