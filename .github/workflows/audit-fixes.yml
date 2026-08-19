@@ -11,12 +11,12 @@ permissions:
   contents: read
 
 jobs:
-  no-unweighted-kpi:
+  test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
-      - run: pip install pandas openpyxl PyYAML
-      - run: python -m unittest discover -s tests -p "test_no_unweighted_portfolio_kpi.py" -v
+      - run: pip install -r requirements.txt
+      - run: python -m unittest discover -s tests -v
